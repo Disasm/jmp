@@ -57,11 +57,11 @@ public class MyPlayer implements PlayerListener, Runnable {
 		if(s==Player.STARTED) {
 			try {
 				p.stop();
-			} catch(MediaException e) {}
+			} catch(Exception e) {}
 		} else if(s==Player.PREFETCHED) {
 			try {
 				p.start();
-			} catch(MediaException e) {}
+			} catch(Exception e) {}
 		}
 	}
 
@@ -168,13 +168,21 @@ public class MyPlayer implements PlayerListener, Runnable {
 	// Длительность текущей песни
 	public long duration() {
 		if(!alive()) return 0;
-		return p.getDuration();
+		try {
+			return p.getDuration();
+		} catch(Exception e) {
+			return 0;
+		}
 	}
 
 	// Текущая позиция в песне
 	public long position() {
 		if(!alive()) return 0;
-		return p.getMediaTime();
+		try {
+			return p.getMediaTime();
+		} catch(Exception e) {
+			return 0;
+		}
 	}
 
 	// true если песня играет или на паузе
@@ -211,7 +219,9 @@ public class MyPlayer implements PlayerListener, Runnable {
 		if(v>100) v = 100;
 		if(v<0) v = 0;
 		volume = v;
-		if(alive()) vc.setLevel(v);
+		try {
+			if(alive()) vc.setLevel(v);
+		} catch(Exception e) {}
 	}
 
 	public void run() {
@@ -265,5 +275,15 @@ public class MyPlayer implements PlayerListener, Runnable {
 		threadItem = item;
 		thread = new Thread(this);
 		thread.start();
+	}
+
+	public void play2(PlayListItem item) {
+		int s = state();
+		if(s==STATE_DEAD) {
+			play(item);
+		} else {
+			if(lastItem == item) return;
+			play(item);
+		}
 	}
 }

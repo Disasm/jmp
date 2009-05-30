@@ -35,7 +35,7 @@ public class PlayListsMenu extends Menu implements CommandListener {
 		if(ind==-1) return null;
 		String s = (String)v.elementAt(ind);
 		if(s==null) return null;
-		if(s.equals("<default>")) return null;
+		if(s.equals(PlayListStore.defaultListName)) return null;
 		return s;
 	}
 

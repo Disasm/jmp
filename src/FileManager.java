@@ -6,6 +6,7 @@ import java.io.*;
 
 public class FileManager extends Menu implements CommandListener, Runnable {
 	private Jmp midlet;
+	private static final String cnfDir = "fm_dir";
 	private static final Command cmdDone = new Command("Готово", Command.OK, 0);
 	private static final Command cmdBack = new Command("Отмена", Command.BACK, 0);
 	private static final Command cmdSelect = new Command("Открыть", Command.ITEM, 0);
@@ -26,7 +27,10 @@ public class FileManager extends Menu implements CommandListener, Runnable {
 	FileManager(Jmp m) {
 		super(m.display, "Выберите файл:", IMPLICIT);
 		midlet = m;
-		dir = "/";
+
+		dir = midlet.config.getString(cnfDir);
+		if(dir==null) dir = "/";
+		
 		files = new Vector();
 		files2 = new Vector();
 		
@@ -122,7 +126,7 @@ public class FileManager extends Menu implements CommandListener, Runnable {
 				}
 				fc.close();
 			}
-		} catch(IOException e) { }
+		} catch(Exception e) { }
 		return r;
 	}
 
@@ -186,6 +190,7 @@ public class FileManager extends Menu implements CommandListener, Runnable {
 				PlayListItem item = (PlayListItem)files2.elementAt(i);
 				midlet.list.add(item);
 			}
+			midlet.list.save(null);
 			midlet.plMenu.rebuild();
 			close();
 		} else if(cmd==cmdBack) {
@@ -217,6 +222,11 @@ public class FileManager extends Menu implements CommandListener, Runnable {
 		}
 		command = CMD_REBUILD;
 		super.show();
+	}
+
+	public void close() {
+		midlet.config.setString(cnfDir, dir);
+		super.close();
 	}
 
 	private void showError() {

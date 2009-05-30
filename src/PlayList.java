@@ -24,7 +24,11 @@ public class PlayList {
 	}
 
 	public void save() {
-		midlet.listStore.update(name, items);
+		save(name);
+	}
+
+	public void save(String nm) {
+		midlet.listStore.update(nm, items);
 	}
 
 	public int size() {
@@ -62,6 +66,16 @@ public class PlayList {
 		forceUpdate();
 	}
 
+	public void delete(Vector items2) {
+		if(items2==null) return;
+		Vector v = new Vector();
+		for(int i=0;i<items.size();i++) {
+			if(!items2.contains(items.elementAt(i))) v.addElement(items.elementAt(i));
+		}
+		items = v;
+		forceUpdate();
+	}
+
 	public void clear() {
 		items = new Vector();
 		forceUpdate();
@@ -85,6 +99,45 @@ public class PlayList {
 		}
 		items = v;
 		forceUpdate();
+	}
+
+	public void moveAfter(Vector items2, PlayListItem after) {
+		Vector v = new Vector();
+		if(after==null) {
+			for(int i=0;i<items2.size();i++) {
+				v.addElement(items2.elementAt(i));
+			}
+			for(int i=0;i<items.size();i++) {
+				if(!items2.contains(items.elementAt(i))) v.addElement(items.elementAt(i));
+			}
+		} else {
+			Vector v2 = new Vector();
+			for(int i=0;i<items2.size();i++) {
+				Object o = items2.elementAt(i);
+				if(o!=after) v2.addElement(o);
+			}
+			Vector v1 = new Vector();
+			for(int i=0;i<items.size();i++) {
+				Object o =items.elementAt(i);
+				if(!v2.contains(o)) v1.addElement(o);
+				if(o==after) break;
+			}
+			for(int i=0;i<v1.size();i++) {
+				v.addElement(v1.elementAt(i));
+			}
+			for(int i=0;i<v2.size();i++) {
+				v.addElement(v2.elementAt(i));
+			}
+			for(int i=0;i<items.size();i++) {
+				Object o = items.elementAt(i);
+				if(v1.contains(o)) continue;
+				if(v2.contains(o)) continue;
+				v.addElement(o);
+			}
+		}
+		items = v;
+		forceUpdate();
+		if(midlet.goMenu!=null) midlet.goMenu.rebuild();
 	}
 
 	public void add(PlayListItem item) {

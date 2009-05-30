@@ -82,7 +82,7 @@ public class PlayListMenu extends Menu implements CommandListener {
 		} else if(cmd==cmdClear) {
 			list.clear();
 		} else if(cmd==cmdGroup) {
-			//
+			midlet.goMenu.show();
 		} else if(cmd==cmdSave) {
 			if(list.name!=null) {
 				savename.setString(list.name);
@@ -106,7 +106,7 @@ public class PlayListMenu extends Menu implements CommandListener {
 			close();
 		} else if(cmd==cmdSelect) {
 			PlayListItem item = getSelectedItem();
-			midlet.player.play(item);
+			midlet.player.play2(item);
 			if(parent()==midlet.pCanvas) {
 				close();
 			} else {

@@ -21,7 +21,7 @@ public class TagReader {
 			is = fc.openInputStream();
 			long size = fc.fileSize();
 
-			Tag tag1 = null;
+			//Tag tag1 = null;
 			Tag tag2 = null;
 
 			byte[] b = new byte[10];
@@ -31,24 +31,24 @@ public class TagReader {
 				tag2 = tryId3v2(is, b);
 			}
 
-			if(tag2==null) {
+			/*if(tag2==null) {
 				tag1 = tryId3v1(is, size);
-			}
+			}*/
 
 			if(tag2!=null) {
 				title = tag2.title;
 				artist = tag2.artist;
 				album = tag2.album;
-			} else if(tag1!=null) {
+			}/* else if(tag1!=null) {
 				title = tag1.title;
 				artist = tag1.artist;
 				album = tag1.album;
-			}
+			}*/
 		} catch(Exception e) {
-			Alert a = new Alert("Ошибка", e.getMessage(), null, AlertType.INFO);
+			/*Alert a = new Alert("Ошибка", e.getMessage(), null, AlertType.INFO);
 			//Alert a = new Alert("Ошибка", e.getMessage()+" (url="+url+")", null, AlertType.INFO);
 			a.setTimeout(Alert.FOREVER);
-			Jmp.midlet.display.setCurrent(a, Jmp.midlet.display.getCurrent());
+			Jmp.midlet.display.setCurrent(a, Jmp.midlet.display.getCurrent());*/
 		}
 		
 		try {

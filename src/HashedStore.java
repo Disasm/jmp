@@ -2,13 +2,14 @@ import javax.microedition.rms.*;
 import java.util.*;
 import java.io.*;
 
-public class PlayListStore {
-	public static final String defaultListName = "По умолчанию";
-	private static final String rmsNames = "plnames";
-	private static final String rmsData = "pldata";
+public class HashedStore {
+	protected String rmsNames;
+	protected String rmsData;
 	private Hashtable hash;
-	
-	PlayListStore() {
+
+	HashedStore(String rNames, String rData) {
+		rmsNames = rNames;
+		rmsData = rData;
 		loadNames();
 	}
 
@@ -51,8 +52,8 @@ public class PlayListStore {
 		catch(IOException e) { }
 	}
 
-	public void delete(String name) {
-		if(name==null) name = defaultListName;
+	protected void delete(String name) {
+		if(name==null) return;
 		Integer i = (Integer)hash.get(name);
 		int ind1 = i.intValue();
 		int ind2 = -1;
@@ -86,42 +87,26 @@ public class PlayListStore {
 		loadNames();
 	}
 
-	public Vector get(String name) {
-		if(name==null) name = defaultListName;
+	protected byte[] get(String name) {
+		if(name==null) return null;
 		Integer i = (Integer)hash.get(name);
-		if(i==null) return new Vector();
+		if(i==null) return null;
 		int id = i.intValue();
 		try {
 			RecordStore rs = RecordStore.openRecordStore(rmsData, true);
 			byte[] b = rs.getRecord(id);
 			rs.closeRecordStore();
-			Vector v = new Vector();
-			try {
-				ByteArrayInputStream bais = new ByteArrayInputStream(b);
-				DataInputStream is = new DataInputStream(bais);
-				int size = is.readInt();
-				while(is.available()>0) {
-					PlayListItem item = new PlayListItem(is);
-					v.addElement(item);
-				}
-			} catch(IOException e) { }
-			return v;
+			return b;
 		} catch(RecordStoreException e) {
-			return new Vector();
+			return null;
 		}
 	}
 
-	public void update(String name, Vector vals) {
-		if(name==null) name = defaultListName;
+	protected void update(String name, byte[] b) {
+		if(name==null) return;
+		if(b==null) return;
 		Integer ind = (Integer)hash.get(name);
 		try {
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			DataOutputStream os = new DataOutputStream(baos);
-			os.writeInt(vals.size());
-			for(int i=0;i<vals.size();i++) {
-				((PlayListItem)vals.elementAt(i)).save(os);
-			}
-			byte[] b = baos.toByteArray();
 			RecordStore rs = RecordStore.openRecordStore(rmsData, true);
 			if(ind==null) {
 				int i2 = rs.addRecord(b, 0, b.length);
@@ -131,73 +116,18 @@ public class PlayListStore {
 				rs.setRecord(ii, b, 0, b.length);
 			}
 			rs.closeRecordStore();
-		} catch(IOException e) { }
+		}
 		catch(RecordStoreException e) { }
 		loadNames();
 	}
 
-	public boolean stringGreater(String s, String then) {
-		int l = Math.min(s.length(), then.length());
-		for(int i=0;i<l;i++) {
-			char c1 = s.charAt(i);
-			char c2 = then.charAt(i);
-			if(c1>c2) return true;
-			if(c1<c2) return false;
-		}
-		if(s.length()>then.length()) return true;
-		else return false;
-	}
-
-	public Vector stringSort(Vector v0) {
-		if(v0==null) return null;
-		if(v0.size()==0) return new Vector();
-		Vector r = new Vector();
-		String[] ss = new String[v0.size()];
-		try {
-			for(int i=0;i<v0.size();i++) {
-				ss[i] = (String)v0.elementAt(i);
-			}
-		} catch(Exception e) {
-			return null;
-		}
-		boolean sorted;
-		while(true) {
-			sorted = true;
-			for(int i=0;i<(ss.length-1);i++) {
-				if(stringGreater(ss[i],ss[i+1])) {
-					String s = ss[i];
-					ss[i] = ss[i+1];
-					ss[i+1] = s;
-					sorted = false;
-				}
-			}
-			if(sorted) break;
-		}
-		for(int i=0;i<ss.length;i++) {
-			r.addElement(ss[i]);
-		}
-		return r;
-	}
-
-	public Vector getNames() {
-		boolean hasDefault = false;
-		if(hash.get(defaultListName)!=null) {
-			hasDefault = true;
-		}
+	protected Vector getNames() {
 		Enumeration e = hash.keys();
 		Vector r = new Vector();
 		while(e.hasMoreElements()) {
 			String s = (String)e.nextElement();
-			if(!s.equals(defaultListName)) {
-				r.addElement(s);
-			}
+			r.addElement(s);
 		}
-		r = stringSort(r);
-		Vector res = new Vector();
-		if(hasDefault) res.addElement(defaultListName);
-		for(int i=0;i<r.size();i++) {
-			res.addElement(r.elementAt(i));
-		}
-		return res;
+		return r;
 	}
 }

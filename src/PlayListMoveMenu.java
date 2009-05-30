@@ -6,7 +6,8 @@ public class PlayListMoveMenu extends Menu implements CommandListener {
 	private static final Command cmdSelect = new Command("ОК", Command.OK, 0);
 	private static final Command cmdBack = new Command("Отмена", Command.BACK, 0);
 	private Vector v;
-	private PlayListItem oldItem;
+	private PlayListItem oldItem = null;
+	private Vector oldItems = null;
 
 	PlayListMoveMenu(Jmp m) {
 		super(m.display, "После файла:", Choice.IMPLICIT);
@@ -36,8 +37,8 @@ public class PlayListMoveMenu extends Menu implements CommandListener {
 			int ind = getSelectedIndex();
 			if(ind==-1) return;
 			PlayListItem item = (PlayListItem)v.elementAt(ind);
-			midlet.list.moveAfter(oldItem, item);
-			midlet.plMenu.rebuild();
+			if(oldItem!=null) midlet.list.moveAfter(oldItem, item);
+			if(oldItems!=null) midlet.list.moveAfter(oldItems, item);
 			close();
 		} else if(cmd==cmdBack) {
 			close();
@@ -45,11 +46,16 @@ public class PlayListMoveMenu extends Menu implements CommandListener {
 	}
 
 	public void show(PlayListItem old) {
-		System.out.println("=show1");
 		oldItem = old;
+		oldItems = null;
 		rebuild();
-		System.out.println("=show2");
 		super.show();
-		System.out.println("=show3");
+	}
+
+	public void show(Vector old) {
+		oldItem = null;
+		oldItems = old;
+		rebuild();
+		super.show();
 	}
 }

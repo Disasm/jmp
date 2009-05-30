@@ -5,11 +5,13 @@ public class Jmp extends MIDlet implements CommandListener {
 	private boolean firstTime = true;
 	public static Jmp midlet = null;
 	public Display display;
+	public ConfigStore config;
 	public MainMenu mainMenu;
 	public PlayListStore listStore;
 	public PlayList list;
 	public PlayListMenu plMenu;
 	public PlayListMoveMenu plmMenu;
+	public GroupOperationsMenu goMenu;
 	public PlayListsMenu plsMenu;
 	public PlayerCanvas pCanvas;
 	public FileManager fileManager;
@@ -20,6 +22,9 @@ public class Jmp extends MIDlet implements CommandListener {
 			midlet = this;
 			firstTime = false;
 			display = Display.getDisplay(this);
+
+			// Конфига
+			config = new ConfigStore();
 
 			// Главная менюшка
 			mainMenu = new MainMenu();
@@ -36,6 +41,9 @@ public class Jmp extends MIDlet implements CommandListener {
 
 			// Менюшка перемещения песен в плейлисте
 			plmMenu = new PlayListMoveMenu(this);
+
+			// Менюшка для групповых операций
+			goMenu = new GroupOperationsMenu(this);
 
 			// Грузим менюшку для списка плейлистов
 			plsMenu = new PlayListsMenu(this);
@@ -58,8 +66,7 @@ public class Jmp extends MIDlet implements CommandListener {
     public void destroyApp(boolean unconditional) {
 		// save something
 		if(list!=null) {
-			list.name = null;
-			list.save();
+			list.save(null);
 		}
 		notifyDestroyed();
     }

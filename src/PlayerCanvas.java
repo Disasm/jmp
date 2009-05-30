@@ -6,11 +6,13 @@ public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 	private Display display;
 	private MyPlayer player;
 	private static final Command cmdBack = new Command("Назад", Command.BACK, 0);
+	private static final Command cmdPause = new Command("Пауза", Command.OK, 0);
 	private int rewindState = 0;
 	private int rewindSpeed = 5000000;
 	private boolean visible = false;
 	private Thread thread;
 	private boolean canFullscreen = false;
+	private int showVolume = 0;
 
 	PlayerCanvas(Jmp m) {
 		midlet = m;
@@ -25,6 +27,10 @@ public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 			if(microeditionPlatform.toLowerCase().indexOf("ericsson") != -1) {
 				canFullscreen = true;
 			}
+		}
+
+		if(!canFullscreen) {
+			addCommand(cmdPause);
 		}
 
 		if(canFullscreen) setFullScreenMode(true);
@@ -46,6 +52,7 @@ public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 		int y = 0;
 		PlayListItem item = player.getCurrentItem();
 		if(item!=null) {
+			y = writeln(y, dh, g, item.name);
 			if(item.title!=null) {
 				y = writeln(y, dh, g, item.title);
 				if(item.artist!=null) {
@@ -54,13 +61,17 @@ public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 				if(item.album!=null) {
 					y = writeln(y, dh, g, item.album);
 				}
-			} else {
-				y = writeln(y, dh, g, item.name);
 			}
 			int state = player.state();
 			if(state!=MyPlayer.STATE_DEAD) {
 				y = writeln(y, dh, g, time2str(player.position())+"/"+time2str(player.duration()));
-				y = writeln(y, dh, g, "["+(player.current()+1)+"/"+player.size()+"]");
+				String s = "";
+				if(state==MyPlayer.STATE_PLAYING) {
+					s = "is playing";
+				} else {
+					s = "paused";
+				}
+				y = writeln(y, dh, g, "["+(player.current()+1)+"/"+player.size()+"] "+s);
 			}
 		}
 		if(player.shuffle) {
@@ -78,11 +89,18 @@ public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 					break;
 			}
 		}
+		if(showVolume>0) {
+			showVolume--;
+			int v = player.getVolume();
+			y = writeln(y, dh, g, "[volume "+v+"%]");
+		}
 	}
 
 	public void commandAction(Command c, Displayable d) {
 		if (c == cmdBack) {
 			close();
+		} else if(c==cmdPause) {
+			actionPause();
 		}
 	}
 
@@ -95,37 +113,76 @@ public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 		visible = false;
 	}
 
+	private void actionPause() {
+		if(player.state()==MyPlayer.STATE_DEAD) {
+			player.play(player.getCurrentItem());
+		} else {
+			player.pause();
+		}
+	}
+
+	public void keyRepeated(int keyCode) {
+		int ga = getGameAction(keyCode);
+		switch(ga) {
+			case LEFT:
+				player.rewind(-rewindSpeed);
+				return;
+			case RIGHT:
+				player.rewind(rewindSpeed);
+				return;
+		}
+		switch (keyCode) {
+			case KEY_NUM4:
+				player.rewind(-rewindSpeed);
+				return;
+			case KEY_NUM6:
+				player.rewind(rewindSpeed);
+				return;
+		}
+	}
+
 	public void keyPressed(int keyCode) {
-		long dt;
+		int ga = getGameAction(keyCode);
+		switch(ga) {
+			case LEFT:
+				player.rewind(-rewindSpeed);
+				return;
+			case RIGHT:
+				player.rewind(rewindSpeed);
+				return;
+			case UP:
+				player.playPrev();
+				return;
+			case DOWN:
+				player.playNext();
+				return;
+			case FIRE:
+				actionPause();
+				return;
+		}
 		switch (keyCode) {
 			case KEY_NUM8:
 				player.playNext();
-				break;
+				return;
 			case KEY_NUM2:
 				player.playPrev();
-				break;
+				return;
+			case KEY_NUM4:
+				player.rewind(-rewindSpeed);
+				return;
+			case KEY_NUM6:
+				player.rewind(rewindSpeed);
+				return;
+			case KEY_NUM5:
+				actionPause();
+				return;
 			case KEY_NUM3:
 				player.setVolume(player.getVolume()+10);
+				showVolume = 5;
 				break;
 			case KEY_NUM9:
 				player.setVolume(player.getVolume()-10);
-				break;
-			case KEY_NUM5:
-				if(player.state()==MyPlayer.STATE_DEAD) {
-					player.play(player.getCurrentItem());
-				} else {
-					player.pause();
-				}
-				break;
-			case KEY_NUM4:
-				rewindState = -1;
-				dt = rewindState * rewindSpeed;
-				player.rewind(dt);
-				break;
-			case KEY_NUM6:
-				rewindState = 1;
-				dt = rewindState * rewindSpeed;
-				player.rewind(dt);
+				showVolume = 5;
 				break;
 			case KEY_STAR:
 				midlet.plMenu.show();
@@ -169,8 +226,6 @@ public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 			} catch (InterruptedException ex) {}
 		}
 	}
-
-
 
 
 

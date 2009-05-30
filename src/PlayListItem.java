@@ -13,12 +13,9 @@ public class PlayListItem {
 		title = tr.title;
 		artist = tr.artist;
 		album = tr.album;
-		if(title!=null) {
-			name = title;
-		} else {
-			int i = path.lastIndexOf('/');
-			name = path.substring(i+1);
-		}
+
+		int i = path.lastIndexOf('/');
+		name = path.substring(i+1);
 	}
 	
 	PlayListItem(DataInputStream s) throws IOException {
