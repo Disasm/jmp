@@ -3,9 +3,9 @@ import java.util.*;
 
 public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 	private Jmp midlet;
-	private Display display;
 	private MyPlayer player;
-	private static final Command cmdBack = new Command("Меню", Command.BACK, 0);
+	private static final Command cmdMenu = new Command("Меню", Command.BACK, 0);
+	private static final Command cmdBack = new Command("Назад", Command.BACK, 0);
 	private static final Command cmdPause = new Command("Пауза", Command.OK, 0);
 	private int rewindState = 0;
 	private int rewindSpeed = 5000000;
@@ -15,12 +15,14 @@ public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 
 	PlayerCanvas(Jmp m) {
 		midlet = m;
-		display = midlet.display;
 		player = midlet.player;
 		addCommand(cmdBack);
 		setCommandListener(this);
 
 		if(midlet.stForm.getOpt(SettingsForm.OPT_COMMAND)) addCommand(cmdPause);
+
+		if(midlet.stForm.getOpt(SettingsForm.OPT_PLMENU)) addCommand(cmdMenu);
+		else addCommand(cmdBack);
 
 		if(midlet.stForm.getOpt(SettingsForm.OPT_FULLSCREEN)) setFullScreenMode(true);
 	}
@@ -28,6 +30,13 @@ public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 	public void updateCommand() {
 		removeCommand(cmdPause);
 		if(midlet.stForm.getOpt(SettingsForm.OPT_COMMAND)) addCommand(cmdPause);
+	}
+
+	public void updateCommand2() {
+		removeCommand(cmdMenu);
+		removeCommand(cmdBack);
+		if(midlet.stForm.getOpt(SettingsForm.OPT_PLMENU)) addCommand(cmdMenu);
+		else addCommand(cmdBack);
 	}
 
 	public void updateFullscreen() {
@@ -103,6 +112,8 @@ public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 
 	public void commandAction(Command c, Displayable d) {
 		if (c == cmdBack) {
+			close();
+		} else if(c==cmdMenu) {
 			close();
 		} else if(c==cmdPause) {
 			actionPause();
@@ -253,17 +264,25 @@ public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 
 	private Stack oldDisp = new Stack();
 
-	protected void close() {
-		display.setCurrent((Displayable)oldDisp.pop());
+	private void close() {
+		midlet.display.setCurrent((Displayable)oldDisp.pop());
 	}
 
-	public void show() {
+	public void show(Displayable old) {
 		if(thread==null)
 		{
 			thread = new Thread(this);
 			thread.start();
 		}
-		oldDisp.push(display.getCurrent());
-		display.setCurrent(this);
+		oldDisp.push(old);
+		midlet.display.setCurrent(this);
+	}
+
+	public void show() {
+		show(midlet.display.getCurrent());
 	}
 }
+
+/*
+ * если из списка нажать играть, оно играет, потом назад - возвращается в список, еще назад - EmptyStackException
+ * */

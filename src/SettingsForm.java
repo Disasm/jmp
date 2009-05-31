@@ -11,6 +11,7 @@ public class SettingsForm extends Form implements CommandListener {
 	public static final int OPT_MINIMIZE = 4;
 	public static final int OPT_READTAGS = 5;
 	public static final int OPT_SHOWTAGS = 6;
+	public static final int OPT_PLMENU = 7;
 	private Vector optNames;
 	private Vector optVals;
 	private Vector optIndex;
@@ -31,6 +32,7 @@ public class SettingsForm extends Form implements CommandListener {
 		addOpt(OPT_MINIMIZE, "minimize", "сворачивать");
 		addOpt(OPT_READTAGS, "pl_read_tags", "читать теги");
 		addOpt(OPT_SHOWTAGS, "pl_show_tags", "показывать теги");
+		addOpt(OPT_PLMENU, "pl_menu", "переходить в меню");
 		append(cg);
 
 		addCommand(cmdSave);
@@ -38,17 +40,17 @@ public class SettingsForm extends Form implements CommandListener {
 		setCommandListener(this);
 	}
 
-	private void addOpt(int type, String name, String vname) {
-		if(type>=optNames.size()) optNames.setSize(type+1);
-		optNames.setElementAt(name, type);
+	private void addOpt(int opt, String name, String vname) {
+		if(opt>=optNames.size()) optNames.setSize(opt+1);
+		optNames.setElementAt(name, opt);
 		
-		if(type>=optVals.size()) optVals.setSize(type+1);
+		if(opt>=optVals.size()) optVals.setSize(opt+1);
 		boolean v = midlet.config.getBoolean(name, false);
-		optVals.setElementAt(new Boolean(v), type);
+		optVals.setElementAt(new Boolean(v), opt);
 
 		int i = cg.append(vname, null);
 		if(i>=optIndex.size()) optIndex.setSize(i+1);
-		optIndex.setElementAt(new Integer(type), i);
+		optIndex.setElementAt(new Integer(opt), i);
 
 		if(v) cg.setSelectedIndex(i, true);
 	}
@@ -64,6 +66,8 @@ public class SettingsForm extends Form implements CommandListener {
 			midlet.pCanvas.updateFullscreen();
 		} else if(opt==OPT_COMMAND) {
 			midlet.pCanvas.updateCommand();
+		} else if(opt==OPT_PLMENU) {
+			midlet.pCanvas.updateCommand2();
 		} else if(opt==OPT_MINIMIZE) {
 			midlet.mainMenu.rebuild();
 		}

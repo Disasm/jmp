@@ -15,6 +15,10 @@ public class Menu extends List {
 		display.setCurrent((Displayable)oldDisp.pop());
 	}
 
+	protected Displayable close0() {
+		return (Displayable)oldDisp.pop();
+	}
+
 	public void show() {
 		oldDisp.push(display.getCurrent());
 		display.setCurrent(this);

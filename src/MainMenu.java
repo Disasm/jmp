@@ -10,6 +10,7 @@ public class MainMenu extends List {
 	public static final int ITEM_SETTINGS = 4;
 	public static final int ITEM_MINIMIZE = 5;
 	public static final int ITEM_EXIT = 6;
+	public static final int ITEM_ABOUT = 7;
 	Vector v;
 
 	MainMenu(Jmp m) {
@@ -27,6 +28,7 @@ public class MainMenu extends List {
 		append("Плеер", ITEM_PLAYER);
 		append("Списки", ITEM_LISTS);
 		append("Настройки", ITEM_SETTINGS);
+		append("О программе", ITEM_ABOUT);
 		if(midlet.stForm.getOpt(SettingsForm.OPT_MINIMIZE)) append("Свернуть", ITEM_MINIMIZE);
 		append("Выход", ITEM_EXIT);
 	}

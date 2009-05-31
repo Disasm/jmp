@@ -109,8 +109,12 @@ public class PlayListMenu extends Menu implements CommandListener {
 			if(parent()==midlet.pCanvas) {
 				close();
 			} else {
-				close();
-				midlet.pCanvas.show();
+				if(midlet.stForm.getOpt(SettingsForm.OPT_PLMENU)) {
+					Displayable dd = close0();
+					midlet.pCanvas.show(dd);
+				} else {
+					midlet.pCanvas.show();
+				}
 			}
 		}
 	}
