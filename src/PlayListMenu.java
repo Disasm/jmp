@@ -18,7 +18,6 @@ public class PlayListMenu extends Menu implements CommandListener {
 	private Vector v;
 
 	PlayListMenu(Jmp m) {
-		//super((l.name==null)?"":l.name, Choice.IMPLICIT);
 		super(m.display, m.list.name, Choice.IMPLICIT);
 		midlet = m;
 		list = m.list;
@@ -110,6 +109,7 @@ public class PlayListMenu extends Menu implements CommandListener {
 			if(parent()==midlet.pCanvas) {
 				close();
 			} else {
+				close();
 				midlet.pCanvas.show();
 			}
 		}

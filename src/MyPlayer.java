@@ -230,6 +230,9 @@ public class MyPlayer implements PlayerListener, Runnable {
 
 			lastItem = item;
 			lastIndex = list.indexOf(lastItem);
+
+			midlet.pCanvas.repaint2();
+
 			return;
 		}
 		catch(IOException e) {

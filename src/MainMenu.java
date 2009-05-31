@@ -16,14 +16,19 @@ public class MainMenu extends List {
 		super("Главное меню", Choice.IMPLICIT);
 		midlet = m;
 
+		setSelectCommand(SELECT_COMMAND);
+		rebuild();
+	}
+
+	public void rebuild() {
+		deleteAll();
 		v = new Vector();
 		append("Список", ITEM_LIST);
 		append("Плеер", ITEM_PLAYER);
 		append("Списки", ITEM_LISTS);
 		append("Настройки", ITEM_SETTINGS);
-		if(midlet.stForm.getMinimize()) append("Свернуть", ITEM_MINIMIZE);
+		if(midlet.stForm.getOpt(SettingsForm.OPT_MINIMIZE)) append("Свернуть", ITEM_MINIMIZE);
 		append("Выход", ITEM_EXIT);
-		setSelectCommand(SELECT_COMMAND);
 	}
 
 	private void append(String s, int a) {

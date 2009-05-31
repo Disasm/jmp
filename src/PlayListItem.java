@@ -1,19 +1,23 @@
 import java.io.*;
 
 public class PlayListItem {
+	private Jmp midlet;
 	public String name;
 	public String path;
 	public String title;
 	public String artist;
 	public String album;
 	
-	PlayListItem(String p) {
+	PlayListItem(Jmp m, String p) {
+		midlet = m;
 		path = p;
-		TagReader tr = new TagReader(path);
-		title = tr.title;
-		artist = tr.artist;
-		album = tr.album;
 
+		if(Jmp.midlet.stForm.getOpt(SettingsForm.OPT_READTAGS)) {
+			TagReader tr = new TagReader(path);
+			title = tr.title;
+			artist = tr.artist;
+			album = tr.album;
+		}
 		int i = path.lastIndexOf('/');
 		name = path.substring(i+1);
 	}

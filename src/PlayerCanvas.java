@@ -5,7 +5,7 @@ public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 	private Jmp midlet;
 	private Display display;
 	private MyPlayer player;
-	private static final Command cmdBack = new Command("Назад", Command.BACK, 0);
+	private static final Command cmdBack = new Command("Меню", Command.BACK, 0);
 	private static final Command cmdPause = new Command("Пауза", Command.OK, 0);
 	private int rewindState = 0;
 	private int rewindSpeed = 5000000;
@@ -20,9 +20,23 @@ public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 		addCommand(cmdBack);
 		setCommandListener(this);
 
-		if(midlet.stForm.getCommand()) addCommand(cmdPause);
+		if(midlet.stForm.getOpt(SettingsForm.OPT_COMMAND)) addCommand(cmdPause);
 
-		if(midlet.stForm.getFullscreen()) setFullScreenMode(true);
+		if(midlet.stForm.getOpt(SettingsForm.OPT_FULLSCREEN)) setFullScreenMode(true);
+	}
+
+	public void updateCommand() {
+		removeCommand(cmdPause);
+		if(midlet.stForm.getOpt(SettingsForm.OPT_COMMAND)) addCommand(cmdPause);
+	}
+
+	public void updateFullscreen() {
+		if(midlet.stForm.getOpt(SettingsForm.OPT_FULLSCREEN)) {
+			setFullScreenMode(true);
+		}
+		else {
+			setFullScreenMode(false);
+		}
 	}
 
 	private int writeln(int oldy, int dh, Graphics g, String s)
@@ -42,13 +56,15 @@ public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 		PlayListItem item = player.getCurrentItem();
 		if(item!=null) {
 			y = writeln(y, dh, g, item.name);
-			if(item.title!=null) {
-				y = writeln(y, dh, g, item.title);
-				if(item.artist!=null) {
-					y = writeln(y, dh, g, item.artist);
-				}
-				if(item.album!=null) {
-					y = writeln(y, dh, g, item.album);
+			if(midlet.stForm.getOpt(SettingsForm.OPT_SHOWTAGS)) {
+				if(item.title!=null) {
+					y = writeln(y, dh, g, item.title);
+					if(item.artist!=null) {
+						y = writeln(y, dh, g, item.artist);
+					}
+					if(item.album!=null) {
+						y = writeln(y, dh, g, item.album);
+					}
 				}
 			}
 			int state = player.state();
@@ -94,7 +110,7 @@ public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 	}
 
 	protected void showNotify() {
-		if(midlet.stForm.getFullscreen()) setFullScreenMode(true);
+		if(midlet.stForm.getOpt(SettingsForm.OPT_FULLSCREEN)) setFullScreenMode(true);
 		visible = true;
 	}
 
@@ -108,6 +124,7 @@ public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 		} else {
 			player.pause();
 		}
+		repaint2();
 	}
 
 	public void keyRepeated(int keyCode) {
@@ -115,17 +132,21 @@ public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 		switch(ga) {
 			case LEFT:
 				player.rewind(-rewindSpeed);
+				repaint2();
 				return;
 			case RIGHT:
 				player.rewind(rewindSpeed);
+				repaint2();
 				return;
 		}
 		switch (keyCode) {
 			case KEY_NUM4:
 				player.rewind(-rewindSpeed);
+				repaint2();
 				return;
 			case KEY_NUM6:
 				player.rewind(rewindSpeed);
+				repaint2();
 				return;
 		}
 	}
@@ -135,9 +156,11 @@ public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 		switch(ga) {
 			case LEFT:
 				player.rewind(-rewindSpeed);
+				repaint2();
 				return;
 			case RIGHT:
 				player.rewind(rewindSpeed);
+				repaint2();
 				return;
 			case UP:
 				player.playPrev();
@@ -158,9 +181,11 @@ public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 				return;
 			case KEY_NUM4:
 				player.rewind(-rewindSpeed);
+				repaint2();
 				return;
 			case KEY_NUM6:
 				player.rewind(rewindSpeed);
+				repaint2();
 				return;
 			case KEY_NUM5:
 				actionPause();
@@ -168,16 +193,19 @@ public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 			case KEY_NUM3:
 				player.setVolume(player.getVolume()+10);
 				showVolume = 5;
+				repaint2();
 				break;
 			case KEY_NUM9:
 				player.setVolume(player.getVolume()-10);
 				showVolume = 5;
+				repaint2();
 				break;
 			case KEY_STAR:
 				midlet.plMenu.show();
 				break;
 			case KEY_POUND:
 				player.setShuffle(!player.getShuffle());
+				repaint2();
 				break;
 			case KEY_NUM0:
 				switch(player.getRepeat()) {
@@ -191,6 +219,7 @@ public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 						player.setRepeat(MyPlayer.REPEAT_ALL);
 						break;
 				}
+				repaint2();
 				break;
 		}
 	}
@@ -206,10 +235,14 @@ public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 		return m+":"+s;
 	}
 
+	public void repaint2() {
+		if(visible) repaint();
+	}
+
 	public void run() {
 		while(true)
 		{
-			if(visible) repaint();
+			repaint2();
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException ex) {}

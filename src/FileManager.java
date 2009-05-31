@@ -49,7 +49,7 @@ public class FileManager extends Menu implements CommandListener, Runnable {
 	}
 
 	private void includeFile(String path) {
-		if(!midlet.stForm.getFmAdd()) {
+		if(!midlet.stForm.getOpt(SettingsForm.OPT_FMADD)) {
 			if(midlet.list.hasFile("file://"+path)) return;
 		}
 		Vector v = new Vector();
@@ -59,7 +59,7 @@ public class FileManager extends Menu implements CommandListener, Runnable {
 			v2.addElement(files2.elementAt(i));
 		}
 		v.addElement(path);
-		v2.addElement(new PlayListItem("file://"+path));
+		v2.addElement(new PlayListItem(midlet, "file://"+path));
 		files = v;
 		files2 = v2;
 	}
