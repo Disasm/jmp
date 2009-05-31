@@ -28,8 +28,7 @@ public class FileManager extends Menu implements CommandListener, Runnable {
 		super(m.display, "Выберите файл:", IMPLICIT);
 		midlet = m;
 
-		dir = midlet.config.getString(cnfDir);
-		if(dir==null) dir = "/";
+		dir = midlet.config.getString(cnfDir, "/");
 		
 		files = new Vector();
 		files2 = new Vector();
@@ -50,6 +49,9 @@ public class FileManager extends Menu implements CommandListener, Runnable {
 	}
 
 	private void includeFile(String path) {
+		if(!midlet.stForm.getFmAdd()) {
+			if(midlet.list.hasFile("file://"+path)) return;
+		}
 		Vector v = new Vector();
 		Vector v2 = new Vector();
 		for(int i=0;i<files.size();i++) {

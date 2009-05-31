@@ -11,7 +11,6 @@ public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 	private int rewindSpeed = 5000000;
 	private boolean visible = false;
 	private Thread thread;
-	private boolean canFullscreen = false;
 	private int showVolume = 0;
 
 	PlayerCanvas(Jmp m) {
@@ -21,19 +20,9 @@ public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 		addCommand(cmdBack);
 		setCommandListener(this);
 
+		if(midlet.stForm.getCommand()) addCommand(cmdPause);
 
-		String microeditionPlatform = System.getProperty("microedition.platform");
-		if (microeditionPlatform != null) {
-			if(microeditionPlatform.toLowerCase().indexOf("ericsson") != -1) {
-				canFullscreen = true;
-			}
-		}
-
-		if(!canFullscreen) {
-			addCommand(cmdPause);
-		}
-
-		if(canFullscreen) setFullScreenMode(true);
+		if(midlet.stForm.getFullscreen()) setFullScreenMode(true);
 	}
 
 	private int writeln(int oldy, int dh, Graphics g, String s)
@@ -74,10 +63,10 @@ public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 				y = writeln(y, dh, g, "["+(player.current()+1)+"/"+player.size()+"] "+s);
 			}
 		}
-		if(player.shuffle) {
+		if(player.getShuffle()) {
 			y = writeln(y, dh, g, "[shuffle]");
 		} else {
-			switch(player.repeat) {
+			switch(player.getRepeat()) {
 				case MyPlayer.REPEAT_ALL:
 					y = writeln(y, dh, g, "[repeat all]");
 					break;
@@ -105,7 +94,7 @@ public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 	}
 
 	protected void showNotify() {
-		if(canFullscreen) setFullScreenMode(true);
+		if(midlet.stForm.getFullscreen()) setFullScreenMode(true);
 		visible = true;
 	}
 
@@ -188,18 +177,18 @@ public class PlayerCanvas extends Canvas implements CommandListener, Runnable {
 				midlet.plMenu.show();
 				break;
 			case KEY_POUND:
-				player.shuffle = !player.shuffle;
+				player.setShuffle(!player.getShuffle());
 				break;
 			case KEY_NUM0:
-				switch(player.repeat) {
+				switch(player.getRepeat()) {
 					case MyPlayer.REPEAT_ALL:
-						player.repeat = MyPlayer.REPEAT_ONE;
+						player.setRepeat(MyPlayer.REPEAT_ONE);
 						break;
 					case MyPlayer.REPEAT_ONE:
-						player.repeat = MyPlayer.REPEAT_NONE;
+						player.setRepeat(MyPlayer.REPEAT_NONE);
 						break;
 					case MyPlayer.REPEAT_NONE:
-						player.repeat = MyPlayer.REPEAT_ALL;
+						player.setRepeat(MyPlayer.REPEAT_ALL);
 						break;
 				}
 				break;

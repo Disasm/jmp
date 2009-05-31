@@ -2,30 +2,26 @@ import javax.microedition.lcdui.*;
 import java.util.*;
 
 public class MainMenu extends List {
+	private Jmp midlet;
 	public static final Command SELECT_COMMAND = new Command("", Command.SCREEN, 0);
 	public static final int ITEM_LIST = 1;
 	public static final int ITEM_PLAYER = 2;
 	public static final int ITEM_LISTS = 3;
-	public static final int ITEM_MINIMIZE = 4;
-	public static final int ITEM_EXIT = 5;
+	public static final int ITEM_SETTINGS = 4;
+	public static final int ITEM_MINIMIZE = 5;
+	public static final int ITEM_EXIT = 6;
 	Vector v;
 
-	MainMenu() {
+	MainMenu(Jmp m) {
 		super("Главное меню", Choice.IMPLICIT);
-
-		boolean canIconify = false;
-		String microeditionPlatform = System.getProperty("microedition.platform");
-		if (microeditionPlatform != null) {
-			if(microeditionPlatform.toLowerCase().indexOf("ericsson") != -1) {
-				canIconify = true;
-			}
-		}
+		midlet = m;
 
 		v = new Vector();
 		append("Список", ITEM_LIST);
 		append("Плеер", ITEM_PLAYER);
 		append("Списки", ITEM_LISTS);
-		if(canIconify) append("Свернуть", ITEM_MINIMIZE);
+		append("Настройки", ITEM_SETTINGS);
+		if(midlet.stForm.getMinimize()) append("Свернуть", ITEM_MINIMIZE);
 		append("Выход", ITEM_EXIT);
 		setSelectCommand(SELECT_COMMAND);
 	}

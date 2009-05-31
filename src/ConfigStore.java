@@ -1,4 +1,3 @@
-import java.util.*;
 import java.io.*;
 
 public class ConfigStore extends HashedStore {
@@ -17,34 +16,46 @@ public class ConfigStore extends HashedStore {
 
 
 	
-	public int getInt(String name) {
+	public int getInt(String name, int def) {
 		DataInputStream is = getIs(name);
-		if(is==null) return 0;
+		if(is==null) return def;
 		try {
 			return is.readInt();
 		} catch (IOException ex) {
-			return 0;
+			return def;
+		}
+	}
+
+	public int getInt(String name) {
+		return getInt(name, 0);
+	}
+
+	public boolean getBoolean(String name, boolean def) {
+		DataInputStream is = getIs(name);
+		if(is==null) return def;
+		try {
+			return is.readBoolean();
+		} catch (IOException ex) {
+			return def;
 		}
 	}
 
 	public boolean getBoolean(String name) {
+		return getBoolean(name, false);
+	}
+
+	public String getString(String name, String def) {
 		DataInputStream is = getIs(name);
-		if(is==null) return false;
+		if(is==null) return def;
 		try {
-			return is.readBoolean();
+			return is.readUTF();
 		} catch (IOException ex) {
-			return false;
+			return def;
 		}
 	}
 
 	public String getString(String name) {
-		DataInputStream is = getIs(name);
-		if(is==null) return null;
-		try {
-			return is.readUTF();
-		} catch (IOException ex) {
-			return null;
-		}
+		return getString(name, null);
 	}
 
 

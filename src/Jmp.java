@@ -16,6 +16,7 @@ public class Jmp extends MIDlet implements CommandListener {
 	public PlayerCanvas pCanvas;
 	public FileManager fileManager;
 	public MyPlayer player;
+	public SettingsForm stForm;
 	
     public void startApp() {
 		if(firstTime) {
@@ -26,9 +27,8 @@ public class Jmp extends MIDlet implements CommandListener {
 			// Конфига
 			config = new ConfigStore();
 
-			// Главная менюшка
-			mainMenu = new MainMenu();
-			mainMenu.setCommandListener(this);
+			// Меню настроек
+			stForm = new SettingsForm(this);
 
 			// Грузим штуку для хранения плейлистов в RecordStore
 			listStore = new PlayListStore();
@@ -56,6 +56,10 @@ public class Jmp extends MIDlet implements CommandListener {
 
 			// Грузим GUI для плеера
 			pCanvas = new PlayerCanvas(this);
+
+			// Главная менюшка
+			mainMenu = new MainMenu(this);
+			mainMenu.setCommandListener(this);
 		}
 		display.setCurrent(mainMenu);
     }
@@ -83,6 +87,9 @@ public class Jmp extends MIDlet implements CommandListener {
 					break;
 				case MainMenu.ITEM_LISTS:
 					plsMenu.show();
+					break;
+				case MainMenu.ITEM_SETTINGS:
+					stForm.show();
 					break;
 				case MainMenu.ITEM_MINIMIZE:
 					display.setCurrent(null);

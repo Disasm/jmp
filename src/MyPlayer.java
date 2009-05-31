@@ -6,6 +6,8 @@ import java.util.*;
 public class MyPlayer implements PlayerListener, Runnable {
 	private Jmp midlet;
 	private PlayList list;
+	private static final String cnfRepeat = "mp_repeat";
+	private static final String cnfShuffle = "mp_shuffle";
 	public static final int STATE_PLAYING = 1;
 	public static final int STATE_PAUSED = 2;
 	public static final int STATE_DEAD = 3;
@@ -17,8 +19,8 @@ public class MyPlayer implements PlayerListener, Runnable {
 	private Player p;
 	private VolumeControl vc;
 	private int volume;
-	public boolean shuffle;
-	public int repeat = REPEAT_ALL;
+	private boolean shuffle;
+	private int repeat;
 
 	private Thread thread;
 	private PlayListItem threadItem;
@@ -26,6 +28,10 @@ public class MyPlayer implements PlayerListener, Runnable {
 	MyPlayer(Jmp m) {
 		midlet = m;
 		list = midlet.list;
+
+		repeat = midlet.config.getInt(cnfRepeat, REPEAT_ALL);
+		shuffle = midlet.config.getBoolean(cnfShuffle, false);
+
 		lastItem = null;
 		if(list.size()!=0) {
 			lastIndex = 0;
@@ -80,20 +86,20 @@ public class MyPlayer implements PlayerListener, Runnable {
 		catch (NullPointerException e) {}
 	}
 
+	// выдаёт индекс следующей песни в случайном порядке
 	private int getShuffleIndex() {
 		int n = list.size();
 		if(n==1) {
 			return 0;
 		} else {
-			int ind0 = lastIndex;
 			Random rnd = new Random();
-			while(true) {
-				int i = rnd.nextInt(n);
-				if(i!=lastIndex) return i;
-			}
+			int i = rnd.nextInt(n-1);
+			if(i<lastIndex) return i;
+			else return i+1;
 		}
 	}
 
+	// запускает предыдущую по списку песню
 	public void playPrev() {
 		if(list.size()==0) return;
 		int i;
@@ -109,6 +115,7 @@ public class MyPlayer implements PlayerListener, Runnable {
 		play(nextItem);
 	}
 
+	// принудительно запускает следующую по списку песню
 	public void playNext() {
 		if(list.size()==0) return;
 		int i;
@@ -124,6 +131,7 @@ public class MyPlayer implements PlayerListener, Runnable {
 		play(nextItem);
 	}
 
+	// запускает следующую по списку песню, учитывая повторы
 	private void playNext2() {
 		if(list.size()==0) return;
 		int i;
@@ -147,6 +155,7 @@ public class MyPlayer implements PlayerListener, Runnable {
 		play(nextItem);
 	}
 
+	// тут обрабатывается событие конца песни
 	public void playerUpdate(Player player, String event, Object eventData) {
 		if (event == PlayerListener.END_OF_MEDIA) {
 			stop();
@@ -192,6 +201,7 @@ public class MyPlayer implements PlayerListener, Runnable {
 		return ((s==Player.STARTED)||(s==Player.PREFETCHED));
 	}
 
+	// возвращает состояние плеера
 	public int state() {
 		if(p==null) return STATE_DEAD;
 		int s = p.getState();
@@ -205,25 +215,7 @@ public class MyPlayer implements PlayerListener, Runnable {
 	}
 	
 
-	// Управление громкостью
-
-	public int getVolume() {
-		return volume;
-	}
-
-	public int getMaxVolume() {
-		return 100;
-	}
-
-	public void setVolume(int v) {
-		if(v>100) v = 100;
-		if(v<0) v = 0;
-		volume = v;
-		try {
-			if(alive()) vc.setLevel(v);
-		} catch(Exception e) {}
-	}
-
+	// поток, стартующий песню
 	public void run() {
 		PlayListItem item = threadItem;
 		if(item==null) return;
@@ -271,12 +263,14 @@ public class MyPlayer implements PlayerListener, Runnable {
 
 
 
+	// запускает песню на вопроизведение
 	public void play(PlayListItem item) {
 		threadItem = item;
 		thread = new Thread(this);
 		thread.start();
 	}
 
+	// запускает песню на вопроизведение, если она на данный момент не играет
 	public void play2(PlayListItem item) {
 		int s = state();
 		if(s==STATE_DEAD) {
@@ -285,5 +279,45 @@ public class MyPlayer implements PlayerListener, Runnable {
 			if(lastItem == item) return;
 			play(item);
 		}
+	}
+
+
+
+	// всякая инкапсуляция
+	public int getRepeat() {
+		return repeat;
+	}
+
+	public void setRepeat(int r) {
+		if(r==repeat) return;
+		repeat = r;
+		midlet.config.setInt(cnfRepeat, repeat);
+	}
+
+	public boolean getShuffle() {
+		return shuffle;
+	}
+
+	public void setShuffle(boolean s) {
+		if(s==shuffle) return;
+		shuffle = s;
+		midlet.config.setBoolean(cnfShuffle, shuffle);
+	}
+
+	public int getVolume() {
+		return volume;
+	}
+
+	public int getMaxVolume() {
+		return 100;
+	}
+
+	public void setVolume(int v) {
+		if(v>100) v = 100;
+		if(v<0) v = 0;
+		volume = v;
+		try {
+			if(alive()) vc.setLevel(v);
+		} catch(Exception e) {}
 	}
 }
